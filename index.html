@@ -1,0 +1,2080 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>液压系统知识答题程序</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(90deg, #00d2ff, #3a7bd5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        header p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1.1rem;
+        }
+
+        .quiz-area {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            min-height: 400px;
+            position: relative;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .question-number {
+            background: linear-gradient(135deg, #00d2ff, #3a7bd5);
+            color: #fff;
+            padding: 10px 25px;
+            border-radius: 30px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(0, 210, 255, 0.3);
+        }
+
+        .score-display {
+            display: flex;
+            gap: 20px;
+            font-size: 1rem;
+        }
+
+        .score-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px 16px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .score-item span:first-child {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .score-item span:last-child {
+            font-weight: 600;
+            color: #00d2ff;
+        }
+
+        .question-content {
+            margin-bottom: 30px;
+        }
+
+        .question-text {
+            font-size: 1.3rem;
+            line-height: 1.8;
+            color: #fff;
+            margin-bottom: 20px;
+        }
+
+        .question-text strong {
+            color: #00d2ff;
+        }
+
+        .question-type {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            margin-left: 10px;
+            font-weight: 500;
+        }
+
+        .question-type.fill {
+            background: rgba(0, 210, 255, 0.2);
+            color: #00d2ff;
+        }
+
+        .question-type.choice {
+            background: rgba(0, 255, 136, 0.2);
+            color: #00ff88;
+        }
+
+        .question-type.truefalse {
+            background: rgba(255, 165, 0, 0.2);
+            color: #ffa500;
+        }
+
+        .blanks {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .blank-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .blank-label {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .answer-input {
+            width: 200px;
+            padding: 12px 18px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .answer-input:focus {
+            border-color: #00d2ff;
+            box-shadow: 0 0 20px rgba(0, 210, 255, 0.2);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .answer-input.correct {
+            border-color: #00ff88;
+            background: rgba(0, 255, 136, 0.1);
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.2);
+        }
+
+        .answer-input.incorrect {
+            border-color: #ff4757;
+            background: rgba(255, 71, 87, 0.1);
+            box-shadow: 0 0 20px rgba(255, 71, 87, 0.2);
+        }
+
+        .answer-input:disabled {
+            cursor: not-allowed;
+        }
+
+        .correct-answer {
+            display: none;
+            margin-top: 8px;
+            font-size: 0.9rem;
+            color: #00ff88;
+            font-weight: 500;
+        }
+
+        .correct-answer.show {
+            display: block;
+        }
+
+        .options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .option-item {
+            padding: 18px 20px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .option-item:hover {
+            border-color: rgba(0, 210, 255, 0.5);
+            background: rgba(0, 210, 255, 0.1);
+            transform: translateX(5px);
+        }
+
+        .option-item.selected {
+            border-color: #00d2ff;
+            background: rgba(0, 210, 255, 0.15);
+            box-shadow: 0 0 20px rgba(0, 210, 255, 0.2);
+        }
+
+        .option-item.correct {
+            border-color: #00ff88;
+            background: rgba(0, 255, 136, 0.15);
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.2);
+        }
+
+        .option-item.incorrect {
+            border-color: #ff4757;
+            background: rgba(255, 71, 87, 0.15);
+            box-shadow: 0 0 20px rgba(255, 71, 87, 0.2);
+        }
+
+        .option-item:disabled {
+            cursor: not-allowed;
+        }
+
+        .option-item:disabled:hover {
+            transform: none;
+        }
+
+        .option-letter {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: 700;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
+        .option-item.selected .option-letter {
+            background: linear-gradient(135deg, #00d2ff, #3a7bd5);
+        }
+
+        .option-item.correct .option-letter {
+            background: linear-gradient(135deg, #00ff88, #00cc6a);
+            color: #1a1a2e;
+        }
+
+        .option-item.incorrect .option-letter {
+            background: linear-gradient(135deg, #ff4757, #c0392b);
+        }
+
+        .option-text {
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+
+        .question-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 15px;
+            margin: 20px 0;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            background: white;
+            padding: 15px;
+        }
+        
+        .question-image img {
+            max-width: 100%;
+            height: auto;
+        }
+        
+        .question-image svg {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+        
+        .option-image {
+            max-width: 100px;
+            max-height: 100px;
+            width: auto;
+            height: auto;
+            margin: 10px 0;
+            border-radius: 8px;
+            object-fit: contain;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: white;
+            padding: 10px;
+        }
+        
+        .option-image img {
+            max-width: 100%;
+            height: auto;
+        }
+        
+        .option-image svg {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .question-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .btn {
+            padding: 14px 32px;
+            border: none;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #00d2ff, #3a7bd5);
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(0, 210, 255, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 210, 255, 0.4);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #00ff88, #00cc6a);
+            color: #1a1a2e;
+            box-shadow: 0 4px 15px rgba(0, 255, 136, 0.3);
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 255, 136, 0.4);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00d2ff, #3a7bd5);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .result-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .result-modal.show {
+            display: flex;
+        }
+
+        .result-card {
+            background: linear-gradient(135deg, rgba(26, 26, 46, 0.95), rgba(22, 33, 62, 0.95));
+            border-radius: 30px;
+            padding: 50px;
+            max-width: 600px;
+            width: 90%;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            animation: fadeInUp 0.5s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-icon {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 30px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 4rem;
+        }
+
+        .result-icon.excellent {
+            background: linear-gradient(135deg, #00ff88, #00cc6a);
+            color: #1a1a2e;
+        }
+
+        .result-icon.good {
+            background: linear-gradient(135deg, #00d2ff, #3a7bd5);
+            color: #fff;
+        }
+
+        .result-icon.pass {
+            background: linear-gradient(135deg, #ffa502, #ff6348);
+            color: #fff;
+        }
+
+        .result-icon.fail {
+            background: linear-gradient(135deg, #ff4757, #c0392b);
+            color: #fff;
+        }
+
+        .result-title {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            background: linear-gradient(90deg, #00d2ff, #3a7bd5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .result-score {
+            font-size: 4rem;
+            font-weight: 700;
+            color: #00d2ff;
+            margin: 20px 0;
+        }
+
+        .result-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .stat-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 15px;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-value.correct {
+            color: #00ff88;
+        }
+
+        .stat-value.incorrect {
+            color: #ff4757;
+        }
+
+        .stat-value.skipped {
+            color: #ffa502;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .shuffle-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            margin-bottom: 20px;
+            gap: 10px;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 48px;
+            height: 26px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.2);
+            transition: 0.3s;
+            border-radius: 26px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background: linear-gradient(135deg, #00d2ff, #3a7bd5);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(22px);
+        }
+
+        .question-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .question-num {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .question-num.current {
+            background: linear-gradient(135deg, #00d2ff, #3a7bd5);
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(0, 210, 255, 0.3);
+        }
+
+        .question-num.completed {
+            background: #00ff88;
+            color: #1a1a2e;
+        }
+
+        .question-num.pending {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .question-num.pending:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8rem;
+            }
+
+            .quiz-area {
+                padding: 20px;
+            }
+
+            .question-text {
+                font-size: 1.1rem;
+            }
+
+            .answer-input {
+                width: 100%;
+            }
+
+            .blanks {
+                flex-direction: column;
+            }
+
+            .options {
+                grid-template-columns: 1fr;
+            }
+
+            .btn {
+                padding: 12px 24px;
+                font-size: 1rem;
+            }
+
+            .result-card {
+                padding: 30px 20px;
+            }
+
+            .result-title {
+                font-size: 1.8rem;
+            }
+
+            .result-score {
+                font-size: 3rem;
+            }
+
+            .result-stats {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>液压系统知识答题</h1>
+            <p>测试你的液压系统基础知识</p>
+        </header>
+
+        <div class="quiz-area">
+            <div class="shuffle-toggle">
+                <label class="toggle-switch">
+                    <input type="checkbox" id="shuffleMode" onchange="toggleShuffleMode()">
+                    <span class="slider"></span>
+                </label>
+                <span>打乱顺序模式</span>
+            </div>
+
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+
+            <div class="question-header">
+                <div class="question-number" id="questionNumber">题目 1</div>
+                <div class="score-display">
+                    <div class="score-item">
+                        <span>得分:</span>
+                        <span id="currentScore">0</span>
+                    </div>
+                    <div class="score-item">
+                        <span>进度:</span>
+                        <span id="progressText">1/58</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="question-content" id="questionContent"></div>
+
+            <div class="question-nav">
+                <button class="btn btn-secondary" id="prevBtn" onclick="prevQuestion()">上一题</button>
+                <button class="btn btn-primary" id="nextBtn" onclick="nextQuestion()">下一题</button>
+            </div>
+
+            <div class="question-grid" id="questionGrid"></div>
+        </div>
+    </div>
+
+    <div class="result-modal" id="resultModal">
+        <div class="result-card">
+            <div class="result-icon" id="resultIcon"></div>
+            <h2 class="result-title" id="resultTitle">答题完成</h2>
+            <div class="result-score" id="finalScore">0</div>
+            <div class="result-stats">
+                <div class="stat-item">
+                    <div class="stat-value correct" id="correctCount">0</div>
+                    <div class="stat-label">正确</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value incorrect" id="incorrectCount">0</div>
+                    <div class="stat-label">错误</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value skipped" id="skippedCount">0</div>
+                    <div class="stat-label">未答</div>
+                </div>
+            </div>
+            <button class="btn btn-success" onclick="restartQuiz()">重新答题</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                id: 1,
+                type: 'fill',
+                text: '液压系统由（ ）、（ ）、（ ）、（ ）四个主要组成部分。系统压力的大小由（ ）决定。',
+                answers: ['辅助元件', '动力元件', '执行元件', '控制元件', '负载']
+            },
+            {
+                id: 2,
+                type: 'fill',
+                text: '齿轮泵的泄漏途径有（ ）、（ ）和（ ）。',
+                answers: ['齿轮齿面啮合处间隙', '泵体内孔和齿顶圆间的径向间隙', '齿轮两面和端盖间的端面间隙']
+            },
+            {
+                id: 3,
+                type: 'fill',
+                text: '液压泵与油箱安装位置的不同有（ ）、（ ）和（ ）三种。',
+                answers: ['上置式', '下置式', '旁置式']
+            },
+            {
+                id: 4,
+                type: 'fill',
+                text: '液压控制阀按用途不同，可分为方向控制阀、（ ）、（ ）三大类。',
+                answers: ['压力控制阀', '流量控制阀']
+            },
+            {
+                id: 5,
+                type: 'fill',
+                text: '粘度的三种表示方法分别为：（ ）、（ ）和动力粘度。',
+                answers: ['运动粘度', '相对粘度']
+            },
+            {
+                id: 6,
+                type: 'fill',
+                text: '压力继电器是一种能将（ ）转换为（ ）的转换装置。',
+                answers: ['液压信号', '电信号']
+            },
+            {
+                id: 7,
+                type: 'fill',
+                text: '液压系统压力损失分为（ ）压力损失和（ ）压力损失。',
+                answers: ['沿程', '局部']
+            },
+            {
+                id: 8,
+                type: 'fill',
+                text: '液压泵的总效率等于（ ）和（ ）的乘积。',
+                answers: ['容积效率', '机械效率']
+            },
+            {
+                id: 9,
+                type: 'fill',
+                text: '齿轮泵主要存在着（ ）、径向力不平衡、（ ）等三大问题。',
+                answers: ['困油与卸荷', '端面泄露及端面间隔自动补偿']
+            },
+            {
+                id: 10,
+                type: 'fill',
+                text: '调速回路可分为（ ）、（ ）和容积节流调速回路三类。',
+                answers: ['节流调速回路', '容积调速回路']
+            },
+            {
+                id: 11,
+                type: 'fill',
+                text: '轴向柱塞泵是通过改变（ ）实现变量的，单作用式叶片泵是通过改变（ ）实现变量的。',
+                answers: ['斜盘倾角', '偏心距']
+            },
+            {
+                id: 12,
+                type: 'fill',
+                text: '活塞或工作台的运动速度取决于单位时间通过节流阀进入液压缸中油液的流量越大，系统的速度（ ），反之亦然。流量为零，系统速度（ ）。',
+                answers: ['越快', '为零']
+            },
+            {
+                id: 13,
+                type: 'fill',
+                text: '叶片泵按照排量是否可变，分为（ ）和（ ），一般需要（ ）来分配油液。',
+                answers: ['定量叶片泵', '变量叶片泵', '配流盘']
+            },
+            {
+                id: 14,
+                type: 'fill',
+                text: '液压泵的卸荷有（ ）卸荷和（ ）卸荷两种方式。',
+                answers: ['压力', '流量']
+            },
+            {
+                id: 15,
+                type: 'fill',
+                text: '液体的流动状态分为（ ）和（ ）。',
+                answers: ['层流', '紊流']
+            },
+            {
+                id: 16,
+                type: 'fill',
+                text: '由于流体具有（ ），液流在管道中流动需要损耗一部分能量，它由（ ）损失和（ ）损失两部分组成。',
+                answers: ['黏性', '沿程压力', '局部压力']
+            },
+            {
+                id: 17,
+                type: 'fill',
+                text: '速度控制回路是对液压系统中执行元件的（ ）和（ ）实现控制的回路。常用的速度控制回路有（ ）、（ ）、快速回路。',
+                answers: ['运动速度', '速度切换', '调速回路', '速度换接回路']
+            },
+            {
+                id: 18,
+                type: 'fill',
+                text: '在液压辅助元件中，（ ）的功用是用来不断净化油液的，（ ）的功用是用来储存压力能的装置。',
+                answers: ['过滤器', '蓄能器']
+            },
+            {
+                id: 19,
+                type: 'fill',
+                text: '气压传动系统的主要由气源装置、（ ）、（ ）和（ ）组成。',
+                answers: ['气动执行元件', '气动控制元件', '气动辅助元件']
+            },
+            {
+                id: 20,
+                type: 'fill',
+                text: '液压控制阀按用途不同，可分为方向控制阀、（ ）、（ ）三大类。',
+                answers: ['压力控制阀', '流量控制阀']
+            },
+            {
+                id: 21,
+                type: 'fill',
+                text: '溢流阀可分为（ ）和（ ）两类。',
+                answers: ['直动式', '先导式']
+            },
+            {
+                id: 22,
+                type: 'fill',
+                text: '液压马达工作中，能量转换方式是将（ ）能转换为（ ）能。',
+                answers: ['压力', '机械']
+            },
+            {
+                id: 23,
+                type: 'fill',
+                text: '压力继电器是一种将油液的（ ）转换成（ ）的电液控制元件。',
+                answers: ['液压信号', '电信号']
+            },
+            {
+                id: 24,
+                type: 'fill',
+                text: '在旁路节流调速回路中，溢流阀起（ ）作用，阀口常（ ）。',
+                answers: ['安全', '闭']
+            },
+            {
+                id: 25,
+                type: 'fill',
+                text: '容积式液压泵的工作原理是：容积增大时实现（ ），容积减小时实现（ ）。',
+                answers: ['吸油', '压油']
+            },
+            {
+                id: 26,
+                type: 'fill',
+                text: '在研究流动液体时，把假设既（ ）又（ ）的液体称为理想流体。',
+                answers: ['无黏性', '不可压缩']
+            },
+            {
+                id: 27,
+                type: 'fill',
+                text: '流体流动时的两种状态分别为（ ）和（ ）。',
+                answers: ['层流', '紊流']
+            },
+            {
+                id: 28,
+                type: 'fill',
+                text: '液压泵按结构特点一般可分为：（ ）、（ ）和（ ）三类泵。',
+                answers: ['齿轮泵', '叶片泵', '柱塞泵']
+            },
+            {
+                id: 29,
+                type: 'fill',
+                text: '溢流阀的作用有（ ）、（ ）、（ ）、（ ）。',
+                answers: ['溢流稳压', '使泵卸荷', '限压保护', '调整压力']
+            },
+            {
+                id: 30,
+                type: 'choice',
+                text: '有两个调整压力分别为5MPa和10MPa的溢流阀并联在液压泵的出口，泵的出口压力为 。',
+                options: [
+                    { letter: 'A', text: '5MPa' },
+                    { letter: 'B', text: '10MPa' },
+                    { letter: 'C', text: '15MPa' },
+                    { letter: 'D', text: '20MPa' }
+                ],
+                answer: 'A'
+            },
+            {
+                id: 31,
+                type: 'choice',
+                text: '流体的流动状态可由下列哪个准则数判定。',
+                options: [
+                    { letter: 'A', text: '努塞尔数' },
+                    { letter: 'B', text: '努森数' },
+                    { letter: 'C', text: '普朗特数' },
+                    { letter: 'D', text: '雷诺数' }
+                ],
+                answer: 'D'
+            },
+            {
+                id: 32,
+                type: 'choice',
+                text: '换向阀图形符号上，与液压泵连接的进油口一般标注的符号是。',
+                options: [
+                    { letter: 'A', text: 'P' },
+                    { letter: 'B', text: 'T' },
+                    { letter: 'C', text: 'A' },
+                    { letter: 'D', text: 'B' }
+                ],
+                answer: 'A'
+            },
+            {
+                id: 33,
+                type: 'choice',
+                text: '我国液压油的牌号是用来表示的。',
+                options: [
+                    { letter: 'A', text: '运动粘度' },
+                    { letter: 'B', text: '动力粘度' },
+                    { letter: 'C', text: '相对粘度' },
+                    { letter: 'D', text: '绝对粘度' }
+                ],
+                answer: 'A'
+            },
+            {
+                id: 34,
+                type: 'choice',
+                text: '以下哪些元件不是执行元件。',
+                options: [
+                    { letter: 'A', text: '液压缸' },
+                    { letter: 'B', text: '液压马达' },
+                    { letter: 'C', text: '摆动马达' },
+                    { letter: 'D', text: '单向定量泵' }
+                ],
+                answer: 'D'
+            },
+            {
+                id: 35,
+                type: 'choice',
+                text: '液压传动是以液体的什么能来传递动力的。',
+                options: [
+                    { letter: 'A', text: '化学能' },
+                    { letter: 'B', text: '动能' },
+                    { letter: 'C', text: '势能' },
+                    { letter: 'D', text: '压力能' }
+                ],
+                answer: 'D'
+            },
+            {
+                id: 36,
+                type: 'choice',
+                text: '液压缸有效面积一定时，其活塞运动的速度由什么来决定。',
+                options: [
+                    { letter: 'A', text: '压力' },
+                    { letter: 'B', text: '流量' },
+                    { letter: 'C', text: '排量' },
+                    { letter: 'D', text: '负载' }
+                ],
+                answer: 'B'
+            },
+            {
+                id: 37,
+                type: 'choice',
+                text: '一水平放置的双杆液压缸，采用三位四通电磁换向阀，要求阀处于中位时，液压泵卸荷，且液压缸浮动，其中位机能应选用。',
+                options: [
+                    { letter: 'A', text: 'O型' },
+                    { letter: 'B', text: 'M型' },
+                    { letter: 'C', text: 'Y型' },
+                    { letter: 'D', text: 'H型' }
+                ],
+                answer: 'D'
+            },
+            {
+                id: 38,
+                type: 'choice',
+                text: '下面哪一项不是溢流阀的功能。',
+                options: [
+                    { letter: 'A', text: '用作安全阀' },
+                    { letter: 'B', text: '用作背压阀' },
+                    { letter: 'C', text: '用作顺序阀' },
+                    { letter: 'D', text: '用作卸荷阀' }
+                ],
+                answer: 'C'
+            },
+            {
+                id: 39,
+                type: 'choice',
+                text: '液压马达是将液压能转化为什么。',
+                options: [
+                    { letter: 'A', text: '热能' },
+                    { letter: 'B', text: '流量' },
+                    { letter: 'C', text: '机械能' },
+                    { letter: 'D', text: '负载' }
+                ],
+                answer: 'C'
+            },
+            {
+                id: 40,
+                type: 'choice',
+                text: '调速阀可使流量不随什么变化而变化。',
+                options: [
+                    { letter: 'A', text: '进口压力' },
+                    { letter: 'B', text: '负载' },
+                    { letter: 'C', text: '温度' },
+                    { letter: 'D', text: '通流面积' }
+                ],
+                answer: 'B'
+            },
+            {
+                id: 41,
+                type: 'choice',
+                text: '溢流阀是什么控制阀。',
+                options: [
+                    { letter: 'A', text: '流量' },
+                    { letter: 'B', text: '方向' },
+                    { letter: 'C', text: '压力' },
+                    { letter: 'D', text: '压力和流量' }
+                ],
+                answer: 'C'
+            },
+            {
+                id: 42,
+                type: 'choice',
+                text: '液压泵理论流量与实际流量的关系是。',
+                options: [
+                    { letter: 'A', text: '大于' },
+                    { letter: 'B', text: '小于' },
+                    { letter: 'C', text: 'A和B都不是' }
+                ],
+                answer: 'A'
+            },
+            {
+                id: 43,
+                type: 'choice',
+                text: '以下哪项不是蓄能器的功能。',
+                options: [
+                    { letter: 'A', text: '作辅助动力源' },
+                    { letter: 'B', text: '作应急油源' },
+                    { letter: 'C', text: '储存能量和短期大量供油' },
+                    { letter: 'D', text: '为系统保压' }
+                ],
+                answer: 'A'
+            },
+            {
+                id: 44,
+                type: 'choice',
+                text: '连续性方程是什么在流体力学中的表现形式。',
+                options: [
+                    { letter: 'A', text: '质量守恒定律' },
+                    { letter: 'B', text: '动量定理' },
+                    { letter: 'C', text: '能量守恒定律' },
+                    { letter: 'D', text: '牛顿内摩擦定律' }
+                ],
+                answer: 'A'
+            },
+            {
+                id: 45,
+                type: 'choice',
+                text: '油箱的用途不包含以下哪一项。',
+                options: [
+                    { letter: 'A', text: '储存油液' },
+                    { letter: 'B', text: '散发热量' },
+                    { letter: 'C', text: '控制方向' },
+                    { letter: 'D', text: '分离油液中的气体' }
+                ],
+                answer: 'C'
+            },
+            {
+                id: 46,
+                type: 'choice',
+                text: '液压传动是以液体的什么能来传递动力的。',
+                options: [
+                    { letter: 'A', text: '化学能' },
+                    { letter: 'B', text: '动能' },
+                    { letter: 'C', text: '势能' },
+                    { letter: 'D', text: '压力能' }
+                ],
+                answer: 'D'
+            },
+            {
+                id: 47,
+                type: 'choice',
+                text: '消除外啮合齿轮泵径向不平衡力的方法有。',
+                options: [
+                    { letter: 'A', text: '设置自动补偿端面间隙结构' },
+                    { letter: 'B', text: '缩小压油口' },
+                    { letter: 'C', text: '加强密封，控制泵的端面间隙' },
+                    { letter: 'D', text: '开压力卸荷槽' }
+                ],
+                answer: 'D'
+            },
+            {
+                id: 48,
+                type: 'choice',
+                text: '液压传动的动力来源是什么。',
+                options: [
+                    { letter: 'A', text: '液压泵' },
+                    { letter: 'B', text: '空气压缩机' },
+                    { letter: 'C', text: '气压马达' },
+                    { letter: 'D', text: '液压缸' }
+                ],
+                answer: 'A'
+            },
+            {
+                id: 49,
+                type: 'choice',
+                text: '将发动机输入的机械能转换为液体的压力能的液压元件是什么。',
+                options: [
+                    { letter: 'A', text: '液压泵' },
+                    { letter: 'B', text: '液压马达' },
+                    { letter: 'C', text: '液压缸' },
+                    { letter: 'D', text: '控制阀' }
+                ],
+                answer: 'A'
+            },
+            {
+                id: 50,
+                type: 'choice',
+                text: '在液压传动中，因某点处的压力低于空气分离压而产生大量气泡的现象，称为。',
+                options: [
+                    { letter: 'A', text: '层流' },
+                    { letter: 'B', text: '紊流' },
+                    { letter: 'C', text: '气穴现象' },
+                    { letter: 'D', text: '液压冲击' }
+                ],
+                answer: 'C'
+            },
+            {
+                id: 51,
+                type: 'choice',
+                text: '普通单向阀在液压系统中的作用是。',
+                options: [
+                    { letter: 'A', text: '控制液压系统压力' },
+                    { letter: 'B', text: '只允许液体朝一个方向流动' },
+                    { letter: 'C', text: '允许液体反向流动' },
+                    { letter: 'D', text: '控制液体可以正向流动，也可以反向流动' }
+                ],
+                answer: 'B'
+            },
+            {
+                id: 52,
+                type: 'choice',
+                text: '绝大多数压力仪表测得的压力是什么，又称表压力。',
+                options: [
+                    { letter: 'A', text: '绝对压力' },
+                    { letter: 'B', text: '真空度' },
+                    { letter: 'C', text: '大气压力' },
+                    { letter: 'D', text: '相对压力' }
+                ],
+                answer: 'D'
+            },
+            {
+                id: 53,
+                type: 'choice',
+                text: '双作用式叶片泵的转子每转一转，吸油、压油各几次。',
+                options: [
+                    { letter: 'A', text: '1' },
+                    { letter: 'B', text: '2' },
+                    { letter: 'C', text: '3' },
+                    { letter: 'D', text: '4' }
+                ],
+                answer: 'B'
+            },
+            {
+                id: 54,
+                type: 'choice',
+                text: '高压系统宜采用什么泵。',
+                options: [
+                    { letter: 'A', text: '外啮合齿轮' },
+                    { letter: 'B', text: '轴向柱塞' },
+                    { letter: 'C', text: '叶片' },
+                    { letter: 'D', text: '内啮合齿轮' }
+                ],
+                answer: 'B'
+            },
+            {
+                id: 55,
+                type: 'choice',
+                text: '在液压系统中，液压油的主要作用为。',
+                options: [
+                    { letter: 'A', text: '冷却' },
+                    { letter: 'B', text: '流动' },
+                    { letter: 'C', text: '传递能量' },
+                    { letter: 'D', text: '去污作用' }
+                ],
+                answer: 'C'
+            },
+            {
+                id: 56,
+                type: 'choice',
+                text: '下面选项中，不是液压油污染的来源有。',
+                options: [
+                    { letter: 'A', text: '残留固体颗粒物' },
+                    { letter: 'B', text: '空气中的尘埃' },
+                    { letter: 'C', text: '运行后生成污染物' },
+                    { letter: 'D', text: '液压油变质' }
+                ],
+                answer: 'D'
+            },
+            {
+                id: 57,
+                type: 'choice',
+                text: '蓄能器的主要作用是。',
+                options: [
+                    { letter: 'A', text: '使泵卸荷' },
+                    { letter: 'B', text: '净化油液' },
+                    { letter: 'C', text: '短时间供油' },
+                    { letter: 'D', text: '冷却油液' }
+                ],
+                answer: 'C'
+            },
+            {
+                id: 58,
+                type: 'choice',
+                text: '调速阀控制液压系统的什么。',
+                options: [
+                    { letter: 'A', text: '压力' },
+                    { letter: 'B', text: '流量' },
+                    { letter: 'C', text: '流动方向' },
+                    { letter: 'D', text: '方向' }
+                ],
+                answer: 'B'
+            },
+            {
+                id: 59,
+                type: 'choice',
+                text: '一般齿轮泵吸油口和压油口的直径大小关系是。',
+                options: [
+                    { letter: 'A', text: '吸油口小于压油口' },
+                    { letter: 'B', text: '吸油口与压油口大小相等' },
+                    { letter: 'C', text: '以上情况都有可能' },
+                    { letter: 'D', text: '吸油口大于压油口' }
+                ],
+                answer: 'D'
+            },
+            {
+                id: 60,
+                type: 'choice',
+                text: '双作用叶片泵是什么。',
+                options: [
+                    { letter: 'A', text: '单向变量泵' },
+                    { letter: 'B', text: '单向定量泵' },
+                    { letter: 'C', text: '双向定量泵' },
+                    { letter: 'D', text: '双向变量泵' }
+                ],
+                answer: 'C'
+            },
+            {
+                id: 61,
+                type: 'choice',
+                text: '液压系统中，液压缸的运动速度取决于。',
+                options: [
+                    { letter: 'A', text: '进入液压缸的液压油的压力' },
+                    { letter: 'B', text: '外负载大小' },
+                    { letter: 'C', text: '进入液压缸的液压油的流量' },
+                    { letter: 'D', text: '液压油温度' }
+                ],
+                answer: 'C'
+            },
+            {
+                id: 62,
+                type: 'choice',
+                text: '普通调速阀是用什么而成的。',
+                options: [
+                    { letter: 'A', text: '节流阀和顺序阀串联' },
+                    { letter: 'B', text: '节流阀和定差减压阀串联' },
+                    { letter: 'C', text: '节流阀和单向阀并联' },
+                    { letter: 'D', text: '节流阀和定差减压阀并联' }
+                ],
+                answer: 'B'
+            },
+            {
+                id: 63,
+                type: 'choice',
+                text: '限制齿轮泵压力提高的主要因素是什么。',
+                options: [
+                    { letter: 'A', text: '流量脉动' },
+                    { letter: 'B', text: '困油现象' },
+                    { letter: 'C', text: '泄漏大' },
+                    { letter: 'D', text: '径向力不平衡' }
+                ],
+                answer: 'C'
+            },
+            {
+                id: 64,
+                type: 'choice',
+                text: '为使三位四通阀在中位工作时能使液压缸闭锁，应采用什么阀。',
+                options: [
+                    { letter: 'A', text: 'H型' },
+                    { letter: 'B', text: 'P型' },
+                    { letter: 'C', text: 'Y型' },
+                    { letter: 'D', text: 'O型' }
+                ],
+                answer: 'D'
+            },
+            {
+                id: 65,
+                type: 'choice',
+                text: '可以在液压系统中起到安全作用的液压阀是什么。',
+                options: [
+                    { letter: 'A', text: '溢流阀' },
+                    { letter: 'B', text: '换向阀' },
+                    { letter: 'C', text: '单向阀' },
+                    { letter: 'D', text: '顺序阀' }
+                ],
+                answer: 'A'
+            },
+            {
+                id: 66,
+                type: 'choice',
+                text: '在锁紧回路（液压锁）中，换向阀的中位机能应选用的是什么。',
+                options: [
+                    { letter: 'A', text: 'M型' },
+                    { letter: 'B', text: 'H型' },
+                    { letter: 'C', text: 'O型' },
+                    { letter: 'D', text: 'U型' }
+                ],
+                answer: 'B'
+            },
+            {
+                id: 67,
+                type: 'choice',
+                text: '溢流阀在回油节流调速回路中的作用是什么。',
+                options: [
+                    { letter: 'A', text: '安全保护' },
+                    { letter: 'B', text: '调压稳压' },
+                    { letter: 'C', text: '做背压阀' },
+                    { letter: 'D', text: '使泵卸荷' }
+                ],
+                answer: 'B'
+            },
+            {
+                id: 68,
+                type: 'choice',
+                text: '在液压回路系统中，容积节流调速回路一般是由限压式变量泵和什么组成的。',
+                options: [
+                    { letter: 'A', text: '调速阀' },
+                    { letter: 'B', text: '节流阀' },
+                    { letter: 'C', text: '溢流阀' },
+                    { letter: 'D', text: '变量马达' }
+                ],
+                answer: 'A'
+            },
+            {
+                id: 69,
+                type: 'choice',
+                text: '下面的各泵中，既是变量泵又是双向泵的是什么。',
+                options: [
+                    { letter: 'A', text: '外啮合齿轮泵' },
+                    { letter: 'B', text: '径向柱塞泵' },
+                    { letter: 'C', text: '双作用叶片泵' },
+                    { letter: 'D', text: '渐开线齿轮泵' }
+                ],
+                answer: 'B'
+            },
+            {
+                id: 70,
+                type: 'choice',
+                text: '在液体流动中，因某点处压力低于空气分离压而产生大量气泡的现象，称为。',
+                options: [
+                    { letter: 'A', text: '层流' },
+                    { letter: 'B', text: '液压冲击' },
+                    { letter: 'C', text: '气穴现象' },
+                    { letter: 'D', text: '紊流' }
+                ],
+                answer: 'C'
+            },
+            {
+                id: 71,
+                type: 'choice',
+                text: '可以在液压系统中起到安全阀作用的液压阀是什么。',
+                options: [
+                    { letter: 'A', text: '溢流阀' },
+                    { letter: 'B', text: '换向阀' },
+                    { letter: 'C', text: '单向阀' },
+                    { letter: 'D', text: '顺序阀' }
+                ],
+                answer: 'A'
+            },
+            {
+                id: 72,
+                type: 'choice',
+                text: '下图所示的液压元件是什么。',
+                image: 'images/q72.png.png',
+                options: [
+                    { letter: 'A', text: '先导式顺序阀' },
+                    { letter: 'B', text: '先导式溢流阀' },
+                    { letter: 'C', text: '压力继电器' },
+                    { letter: 'D', text: '先导式减压阀' }
+                ],
+                answer: 'D'
+            },
+            {
+                id: 73,
+                type: 'choice',
+                text: '下图所示的液压元件是什么。',
+                image: 'images/q73.png.png',
+                options: [
+                    { letter: 'A', text: '直动式减压阀' },
+                    { letter: 'B', text: '直动式顺序阀' },
+                    { letter: 'C', text: '先导式溢流阀' },
+                    { letter: 'D', text: '直动式溢流阀' }
+                ],
+                answer: 'D'
+            },
+            {
+                id: 74,
+                type: 'choice',
+                text: '下图所示的液压元件是什么。',
+                image: 'images/q74.png.png',
+                options: [
+                    { letter: 'A', text: '三位四通M型中位机能电液控换向阀' },
+                    { letter: 'B', text: '三位四通O型中位机能液控换向阀' },
+                    { letter: 'C', text: '三位四通O型中位机能电液控换向阀' },
+                    { letter: 'D', text: '三位四通M型中位机能电磁控制换向阀' }
+                ],
+                answer: 'D'
+            },
+            {
+                id: 75,
+                type: 'choice',
+                text: '下图所示的液压元件是什么。',
+                image: 'images/q75.png.png',
+                options: [
+                    { letter: 'A', text: '先导式顺序阀' },
+                    { letter: 'B', text: '先导式溢流阀' },
+                    { letter: 'C', text: '压力继电器' },
+                    { letter: 'D', text: '先导式减压阀' }
+                ],
+                answer: 'D'
+            },
+            {
+                id: 76,
+                type: 'choice',
+                text: '下面回路中，溢流阀的作用是什么。',
+                image: 'images/q76.png.png',
+                options: [
+                    { letter: 'A', text: '安全保护' },
+                    { letter: 'B', text: '定压溢流' },
+                    { letter: 'C', text: '做背压阀' },
+                    { letter: 'D', text: '使泵卸荷' }
+                ],
+                answer: 'B'
+            },
+            {
+                id: 77,
+                type: 'choice',
+                text: '下图所示的液压元件是什么。',
+                image: 'images/q77.png.png',
+                options: [
+                    { letter: 'A', text: '直动式减压阀' },
+                    { letter: 'B', text: '直动式溢流阀' },
+                    { letter: 'C', text: '先导式溢流阀' },
+                    { letter: 'D', text: '直动式顺序阀' }
+                ],
+                answer: 'B'
+            },
+            {
+                id: 78,
+                type: 'choice',
+                text: '下图液压系统中，顺序阀的作用是什么。',
+                image: 'images/q78.png.png',
+                options: [
+                    { letter: 'A', text: '控制多个执行元件顺序动作' },
+                    { letter: 'B', text: '降低系统某一支路油压力' },
+                    { letter: 'C', text: '定压溢流' },
+                    { letter: 'D', text: '安全保护' }
+                ],
+                answer: 'A'
+            },
+            {
+                id: 79,
+                type: 'choice',
+                text: '下图所示的液压元件是什么。',
+                image: 'images/q79.png.png',
+                options: [
+                    { letter: 'A', text: '调速阀' },
+                    { letter: 'B', text: '单向节流阀' },
+                    { letter: 'C', text: '单向阀' },
+                    { letter: 'D', text: '减压阀' }
+                ],
+                answer: 'B'
+            },
+            {
+                id: 80,
+                type: 'choice',
+                text: '下图液压系统中，减压阀的作用是什么。',
+                image: 'images/q80.png.png',
+                options: [
+                    { letter: 'A', text: '降低系统某一支路的油压力' },
+                    { letter: 'B', text: '定压溢流' },
+                    { letter: 'C', text: '安全保护' },
+                    { letter: 'D', text: '做背压阀' }
+                ],
+                answer: 'A'
+            },
+            {
+                id: 81,
+                type: 'choice',
+                text: '下列哪个图形符号是双向定量泵的符号。',
+                imageOptions: true,
+                options: [
+                    { letter: 'A', text: '', image: 'images/q81a.png.png' },
+                    { letter: 'B', text: '', image: 'images/q81b.png.png' },
+                    { letter: 'C', text: '', image: 'images/q81c.png.png' },
+                    { letter: 'D', text: '', image: 'images/q81d.png.png' }
+                ],
+                answer: 'B'
+            },
+            {
+                id: 82,
+                type: 'choice',
+                text: '下图所示的液压元件是什么。',
+                image: 'images/q82.png.png',
+                options: [
+                    { letter: 'A', text: '节流阀' },
+                    { letter: 'B', text: '调速阀' },
+                    { letter: 'C', text: '普通单向阀' },
+                    { letter: 'D', text: '液控单向阀' }
+                ],
+                answer: 'D'
+            },
+            {
+                id: 83,
+                type: 'choice',
+                text: '下图换向阀是什么换向阀。',
+                image: 'images/q83.png.png',
+                options: [
+                    { letter: 'A', text: '二位四通' },
+                    { letter: 'B', text: '三位四通' },
+                    { letter: 'C', text: '四位三通' },
+                    { letter: 'D', text: '三位五通' }
+                ],
+                answer: 'B'
+            },
+            {
+                id: 84,
+                type: 'choice',
+                text: '下面回路中，溢流阀的作用是什么。',
+                image: 'images/q84.png.png',
+                options: [
+                    { letter: 'A', text: '安全保护' },
+                    { letter: 'B', text: '做背压阀' },
+                    { letter: 'C', text: '远程调压' },
+                    { letter: 'D', text: 'YA断电时做调压阀，YA通电时做卸荷阀' }
+                ],
+                answer: 'D'
+            },
+            {
+                id: 85,
+                type: 'choice',
+                text: '下图所示的液压元件是什么。',
+                image: 'images/q85.png.png',
+                options: [
+                    { letter: 'A', text: '先导式顺序阀' },
+                    { letter: 'B', text: '先导式溢流阀' },
+                    { letter: 'C', text: '压力继电器' },
+                    { letter: 'D', text: '先导式减压阀' }
+                ],
+                answer: 'D'
+            },
+            {
+                id: 86,
+                type: 'choice',
+                text: '下图所示的液压元件是什么。',
+                image: 'images/q86.png.png',
+                options: [
+                    { letter: 'A', text: '减压阀' },
+                    { letter: 'B', text: '溢流阀' },
+                    { letter: 'C', text: '顺序阀' },
+                    { letter: 'D', text: '压力继电器' }
+                ],
+                answer: 'D'
+            },
+            {
+                id: 87,
+                type: 'choice',
+                text: '下图所示的液压元件是什么。',
+                image: 'images/q87.png.png',
+                options: [
+                    { letter: 'A', text: '单向阀' },
+                    { letter: 'B', text: '节流阀' },
+                    { letter: 'C', text: '调速阀' },
+                    { letter: 'D', text: '溢流阀' }
+                ],
+                answer: 'B'
+            },
+            {
+                id: 88,
+                type: 'choice',
+                text: '下图所示的液压元件是什么。',
+                image: 'images/q88.png.png',
+                options: [
+                    { letter: 'A', text: '先导式顺序阀' },
+                    { letter: 'B', text: '先导式溢流阀' },
+                    { letter: 'C', text: '压力继电器' },
+                    { letter: 'D', text: '先导式减压阀' }
+                ],
+                answer: 'B'
+            },
+            {
+                id: 89,
+                type: 'choice',
+                text: '下图所示的液压元件是什么。',
+                image: 'images/q89.png.png',
+                options: [
+                    { letter: 'A', text: '单向阀' },
+                    { letter: 'B', text: '节流阀' },
+                    { letter: 'C', text: '调速阀' },
+                    { letter: 'D', text: '单向节流阀' }
+                ],
+                answer: 'C'
+            },
+            { id: 90, type: 'truefalse', text: '活塞式液压缸的安装方式有缸筒固定和活塞杆固定两种形式。', answer: '√' },
+            { id: 91, type: 'truefalse', text: '直动型溢流阀是利用直接作用在阀芯上的油液作用力和弹簧的作用力相互平衡的原理来控制阀芯的启闭的。', answer: '√' },
+            { id: 92, type: 'truefalse', text: '油箱在液压系统中的功用仅仅是储存液压系统所需的足够油液。', answer: '×' },
+            { id: 93, type: 'truefalse', text: '双作用叶片泵因两个吸油窗口、两个压油窗口是对称布置，因此作用在转子和定子上的液压径向力平衡，轴承承受径向力小、寿命长。', answer: '√' },
+            { id: 94, type: 'truefalse', text: '节流阀和调速阀都是用来调节流量及稳定流量的流量控制阀。', answer: '×' },
+            { id: 95, type: 'truefalse', text: '液压缸属于控制液压元件，溢流阀也属于控制液压元件。', answer: '×' },
+            { id: 96, type: 'truefalse', text: '因电磁吸力有限，对液动力较大的大流量换向阀则应选用液动换向阀或电液换向阀。', answer: '√' },
+            { id: 97, type: 'truefalse', text: '液压缸活塞运动速度只取决于输入流量的大小，与压力无关。', answer: '√' },
+            { id: 98, type: 'truefalse', text: '液压泵与液压马达从能量的观点上来讲是可逆的，因此所有的液压泵可以用作液压马达。', answer: '×' },
+            { id: 99, type: 'truefalse', text: '溢流阀是出口控制，减压阀是入口控制，溢流阀和减压阀都属于压力控制阀。', answer: '×' },
+            { id: 100, type: 'truefalse', text: '液压传动的过程就是机械能—液压能—机械能的能量转换过程。', answer: '√' },
+            { id: 101, type: 'truefalse', text: '液体受压力作用其体积会减小的性质称为液体的可压缩性，用体弹性模量K来表示。', answer: '√' },
+            { id: 102, type: 'truefalse', text: '液压流量阀是通过改变阀口的过流面积来调节输出流量，从而控制执行元件的运动速度。', answer: '√' },
+            { id: 103, type: 'truefalse', text: '液压缸的运动需要一定的压力P和流量Q，压力用来克服负载F，流量用来形成运动速度V。', answer: '√' },
+            { id: 104, type: 'truefalse', text: '液压缸差动连接时，液压缸产生的推力比非差动连接时的作用力大。', answer: '×' },
+            { id: 105, type: 'truefalse', text: '缓冲装置的作用是排出混入液压缸中的气体，保证液压缸运动平稳。', answer: '×' },
+            { id: 106, type: 'truefalse', text: '压力继电器是把油液的压力信号转换成电信号的一种元件。', answer: '√' },
+            { id: 107, type: 'truefalse', text: '在输入相同流量的情况下，供油压力越高，则液压缸的运动速度越快。', answer: '×' },
+            { id: 108, type: 'truefalse', text: '液压缸差动连接时，液压缸的推力比非差动连接时的推力大。', answer: '×' }
+        ];
+
+        let currentQuestion = 0;
+        let userAnswers = [];
+        let isAnswered = false;
+        let score = 0;
+        let isShuffled = false;
+        let shuffledQuestions = [];
+
+        function shuffleArray(array) {
+            const arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function getCurrentQuestions() {
+            if (isShuffled) {
+                if (shuffledQuestions.length === 0) {
+                    const fillQuestions = questions.filter(q => q.type === 'fill');
+                    const choiceQuestions = questions.filter(q => q.type === 'choice');
+                    const truefalseQuestions = questions.filter(q => q.type === 'truefalse');
+                    shuffledQuestions = [
+                        ...shuffleArray(fillQuestions),
+                        ...shuffleArray(choiceQuestions),
+                        ...shuffleArray(truefalseQuestions)
+                    ];
+                }
+                return shuffledQuestions;
+            }
+            return questions;
+        }
+
+        function toggleShuffleMode() {
+            isShuffled = document.getElementById('shuffleMode').checked;
+            shuffledQuestions = [];
+            initQuiz();
+        }
+
+        function initQuiz() {
+            const currentQs = getCurrentQuestions();
+            userAnswers = new Array(currentQs.length).fill(null);
+            currentQuestion = 0;
+            score = 0;
+            isAnswered = false;
+            renderQuestion();
+            renderQuestionGrid();
+            updateProgress();
+        }
+
+        function renderQuestion() {
+            const currentQs = getCurrentQuestions();
+            const question = currentQs[currentQuestion];
+            const content = document.getElementById('questionContent');
+            
+            document.getElementById('questionNumber').textContent = `题目 ${question.id}`;
+            
+            let typeLabel, typeClass;
+            if (question.type === 'fill') {
+                typeLabel = '填空题';
+                typeClass = 'fill';
+            } else if (question.type === 'truefalse') {
+                typeLabel = '判断题';
+                typeClass = 'truefalse';
+            } else {
+                typeLabel = '选择题';
+                typeClass = 'choice';
+            }
+            
+            let html = `<div class="question-text">${question.text}<span class="question-type ${typeClass}">${typeLabel}</span></div>`;
+            
+            if (question.type === 'fill') {
+                html += '<div class="blanks">';
+                question.answers.forEach((_, index) => {
+                    const userAnswer = userAnswers[currentQuestion] && userAnswers[currentQuestion][index] !== undefined ? userAnswers[currentQuestion][index] : '';
+                    const isCorrect = isAnswered ? checkFillAnswer(index, userAnswer) : null;
+                    const correctAnswer = isAnswered ? question.answers[index] : '';
+                    
+                    html += `
+                        <div class="blank-item">
+                            <span class="blank-label">第${index + 1}空:</span>
+                            <input type="text" 
+                                class="answer-input ${isCorrect !== null ? (isCorrect ? 'correct' : 'incorrect') : ''}" 
+                                id="answer${index}"
+                                value="${userAnswer}"
+                                ${isAnswered ? 'disabled' : ''}
+                                oninput="saveFillAnswer(${index}, this.value)"
+                                placeholder="请输入答案"
+                            />
+                            <div class="correct-answer ${isAnswered ? 'show' : ''}" id="correct${index}">
+                                ✅ 正确答案: ${correctAnswer}
+                            </div>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+            } else if (question.type === 'truefalse') {
+                html += '<div class="options">';
+                const options = [{ letter: '√', text: '正确' }, { letter: '×', text: '错误' }];
+                options.forEach((option) => {
+                    const userChoice = userAnswers[currentQuestion];
+                    const isSelected = userChoice === option.letter;
+                    const isCorrect = isAnswered ? option.letter === question.answer : null;
+                    
+                    let optionClass = 'option-item';
+                    if (isAnswered) {
+                        if (option.letter === question.answer) {
+                            optionClass += ' correct';
+                        } else if (isSelected && option.letter !== question.answer) {
+                            optionClass += ' incorrect';
+                        }
+                    } else if (isSelected) {
+                        optionClass += ' selected';
+                    }
+                    
+                    html += `
+                        <div class="${optionClass}" 
+                             ${isAnswered ? 'disabled' : ''}
+                             onclick="${isAnswered ? '' : `selectOption('${option.letter}')`}">
+                            <div class="option-letter">${option.letter}</div>
+                            <div class="option-text">${option.text}</div>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+            } else {
+                if (question.image) {
+                    if (question.image.startsWith('<svg')) {
+                        html += `<div class="question-image">${question.image}</div>`;
+                    } else {
+                        html += `<img src="${question.image}" alt="题目图片" class="question-image" />`;
+                    }
+                }
+                html += '<div class="options">';
+                question.options.forEach((option, index) => {
+                    const userChoice = userAnswers[currentQuestion];
+                    const isSelected = userChoice === option.letter;
+                    const isCorrect = isAnswered ? option.letter === question.answer : null;
+                    
+                    let optionClass = 'option-item';
+                    if (isAnswered) {
+                        if (option.letter === question.answer) {
+                            optionClass += ' correct';
+                        } else if (isSelected && option.letter !== question.answer) {
+                            optionClass += ' incorrect';
+                        }
+                    } else if (isSelected) {
+                        optionClass += ' selected';
+                    }
+                    
+                    let optionContent = '';
+                    if (question.imageOptions && option.image) {
+                        if (option.image.startsWith('<svg')) {
+                            optionContent = `
+                                <div class="option-letter">${option.letter}</div>
+                                <div class="option-image">${option.image}</div>
+                                <div class="option-text">${option.text}</div>
+                            `;
+                        } else {
+                            optionContent = `
+                                <div class="option-letter">${option.letter}</div>
+                                <img src="${option.image}" alt="选项${option.letter}" class="option-image" />
+                                <div class="option-text">${option.text}</div>
+                            `;
+                        }
+                    } else {
+                        optionContent = `
+                            <div class="option-letter">${option.letter}</div>
+                            <div class="option-text">${option.text}</div>
+                        `;
+                    }
+                    
+                    html += `
+                        <div class="${optionClass}" 
+                             ${isAnswered ? 'disabled' : ''}
+                             onclick="${isAnswered ? '' : `selectOption('${option.letter}')`}">
+                            ${optionContent}
+                        </div>
+                    `;
+                });
+                html += '</div>';
+            }
+            
+            content.innerHTML = html;
+            updateNavButtons();
+        }
+
+        function saveFillAnswer(index, value) {
+            if (!userAnswers[currentQuestion]) {
+                userAnswers[currentQuestion] = [];
+            }
+            userAnswers[currentQuestion][index] = value.trim();
+            isAnswered = false;
+        }
+
+        function selectOption(letter) {
+            userAnswers[currentQuestion] = letter;
+            isAnswered = false;
+            renderQuestion();
+        }
+
+        function checkFillAnswer(index, userAnswer) {
+            const currentQs = getCurrentQuestions();
+            const question = currentQs[currentQuestion];
+            const correctAnswer = question.answers[index];
+            return userAnswer === correctAnswer;
+        }
+
+        function submitAnswer() {
+            isAnswered = true;
+            const currentQs = getCurrentQuestions();
+            const question = currentQs[currentQuestion];
+            
+            if (question.type === 'fill') {
+                let correctCount = 0;
+                question.answers.forEach((_, index) => {
+                    const userAnswer = userAnswers[currentQuestion] && userAnswers[currentQuestion][index] !== undefined ? userAnswers[currentQuestion][index] : '';
+                    const isCorrect = checkFillAnswer(index, userAnswer);
+                    const input = document.getElementById(`answer${index}`);
+                    const correctDiv = document.getElementById(`correct${index}`);
+                    
+                    if (input) {
+                        input.classList.remove('correct', 'incorrect');
+                        input.classList.add(isCorrect ? 'correct' : 'incorrect');
+                        input.disabled = true;
+                    }
+                    
+                    if (correctDiv) {
+                        if (!isCorrect) {
+                            correctDiv.classList.add('show');
+                        } else {
+                            correctCount++;
+                        }
+                    }
+                });
+                if (correctCount === question.answers.length) {
+                    score++;
+                }
+            } else {
+                const isCorrect = userAnswers[currentQuestion] === question.answer;
+                if (isCorrect) {
+                    score++;
+                }
+                renderQuestion();
+            }
+            
+            document.getElementById('currentScore').textContent = score;
+            renderQuestionGrid();
+            updateNavButtons();
+        }
+
+        function nextQuestion() {
+            const currentQs = getCurrentQuestions();
+            if (!isAnswered) {
+                submitAnswer();
+                return;
+            }
+            
+            if (currentQuestion < currentQs.length - 1) {
+                currentQuestion++;
+                isAnswered = userAnswers[currentQuestion] !== null;
+                renderQuestion();
+                updateProgress();
+            } else {
+                showResult();
+            }
+        }
+
+        function prevQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                isAnswered = userAnswers[currentQuestion] !== null;
+                renderQuestion();
+                updateProgress();
+            }
+        }
+
+        function updateNavButtons() {
+            const currentQs = getCurrentQuestions();
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            
+            prevBtn.disabled = currentQuestion === 0;
+            
+            if (isAnswered) {
+                nextBtn.textContent = currentQuestion < currentQs.length - 1 ? '下一题' : '查看结果';
+            } else {
+                nextBtn.textContent = '提交答案';
+            }
+        }
+
+        function updateProgress() {
+            const currentQs = getCurrentQuestions();
+            const progress = ((currentQuestion + 1) / currentQs.length) * 100;
+            document.getElementById('progressFill').style.width = `${progress}%`;
+            document.getElementById('progressText').textContent = `${currentQuestion + 1}/${currentQs.length}`;
+        }
+
+        function renderQuestionGrid() {
+            const currentQs = getCurrentQuestions();
+            const grid = document.getElementById('questionGrid');
+            let html = '';
+            
+            currentQs.forEach((_, index) => {
+                let className = 'question-num pending';
+                
+                if (index === currentQuestion) {
+                    className = 'question-num current';
+                } else if (userAnswers[index] !== null) {
+                    className = 'question-num completed';
+                }
+                
+                html += `<div class="${className}" onclick="goToQuestion(${index})">${index + 1}</div>`;
+            });
+            
+            grid.innerHTML = html;
+        }
+
+        function goToQuestion(index) {
+            if (index !== currentQuestion) {
+                currentQuestion = index;
+                isAnswered = userAnswers[currentQuestion] !== null;
+                renderQuestion();
+                renderQuestionGrid();
+                updateProgress();
+            }
+        }
+
+        function showResult() {
+            const currentQs = getCurrentQuestions();
+            const modal = document.getElementById('resultModal');
+            const finalScore = document.getElementById('finalScore');
+            const resultIcon = document.getElementById('resultIcon');
+            const resultTitle = document.getElementById('resultTitle');
+            const correctCount = document.getElementById('correctCount');
+            const incorrectCount = document.getElementById('incorrectCount');
+            const skippedCount = document.getElementById('skippedCount');
+            
+            finalScore.textContent = `${score}分`;
+            
+            let correct = 0;
+            let incorrect = 0;
+            let skipped = 0;
+            
+            userAnswers.forEach((answer, index) => {
+                const question = currentQs[index];
+                if (answer === null) {
+                    skipped++;
+                } else {
+                    let isCorrect = false;
+                    if (question.type === 'fill') {
+                        isCorrect = question.answers.every((ans, i) => answer[i] === ans);
+                    } else {
+                        isCorrect = answer === question.answer;
+                    }
+                    if (isCorrect) {
+                        correct++;
+                    } else {
+                        incorrect++;
+                    }
+                }
+            });
+            
+            correctCount.textContent = correct;
+            incorrectCount.textContent = incorrect;
+            skippedCount.textContent = skipped;
+            
+            const percentage = (score / questions.length) * 100;
+            if (percentage >= 90) {
+                resultIcon.className = 'result-icon excellent';
+                resultIcon.textContent = '🏆';
+                resultTitle.textContent = '太棒了！';
+            } else if (percentage >= 70) {
+                resultIcon.className = 'result-icon good';
+                resultIcon.textContent = '👍';
+                resultTitle.textContent = '表现不错！';
+            } else if (percentage >= 60) {
+                resultIcon.className = 'result-icon pass';
+                resultIcon.textContent = '💪';
+                resultTitle.textContent = '及格了！';
+            } else {
+                resultIcon.className = 'result-icon fail';
+                resultIcon.textContent = '📚';
+                resultTitle.textContent = '继续加油！';
+            }
+            
+            modal.classList.add('show');
+        }
+
+        function restartQuiz() {
+            document.getElementById('resultModal').classList.remove('show');
+            initQuiz();
+        }
+
+        window.onload = initQuiz;
+    </script>
+</body>
+</html>
